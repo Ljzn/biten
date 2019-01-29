@@ -1,3 +1,3 @@
 #! /bin/sh
 
-erl -pa apps/*/ebin -boot start_sasl -s biten_app
+erl -pa _build/default/lib/*/ebin -boot start_sasl -s biten_app

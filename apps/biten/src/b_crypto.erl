@@ -1,6 +1,6 @@
 %%% --------------------------------------------------------------------------
 %%% @author Randy Willis <willis.randy@ymail.com
-%%% @doc Common bitcoin crypto functions 
+%%% @doc Common bitcoin crypto functions
 %%% @end
 %%% --------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@
 -compile(export_all).
 
 hash(Bin) ->
-	erlsha2:sha256(erlsha2:sha256(Bin)).
+	crypto:hash(sha256, crypto:hash(sha256, Bin)).
 
 crc(Bin) ->
 	<<CRC:4/binary, _/binary>> = hash(Bin),
@@ -57,7 +57,7 @@ pf_inv(X, P) ->
 
 pf_inv(U, _V, X1, _X2) when U =:= 1 ->
     X1;
-     
+
 pf_inv(U, V, X1, X2) when U > 1 ->
     Q = V div U,
     pf_inv(V - Q*U, U, X2 - Q*X1, X1).
@@ -114,7 +114,7 @@ ec_pmul(X, P, Q) ->
         0 ->
             Q
     end,
-    ec_pmul(X bsr 1, ec_add(P, P), Q1). 
+    ec_pmul(X bsr 1, ec_add(P, P), Q1).
 
 p() ->
     ?P.
@@ -129,7 +129,7 @@ check_key(_) ->
     true.
 
 gen_kr() ->
-    K = random:uniform(?N - 1),
+    K = rand:uniform(?N - 1),
     {X1, _} = ec_pmul(K, ?G),
     R = X1 rem ?N,
     case R of

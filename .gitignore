@@ -1,0 +1,5 @@
+/_build/
+/data/
+/rel/
+erl_crash.dump
+log.txt

@@ -29,7 +29,7 @@ start_link() ->
 get_stats() ->
     gen_server:call(?SERVER, get_stats).
 
-%% @doc get list of headers from root to given hash 
+%% @doc get list of headers from root to given hash
 get_chain(H) ->
     gen_server:call(?SERVER, {get_chain, H}, 100*1000).
 
@@ -59,7 +59,7 @@ stop() ->
 init([]) ->
     {ok, _} = dets:open_file(raw, [{file, "data/raw.dets"}]),
     self() ! check_headers,
-    {ok, #state{}}. 
+    {ok, #state{}}.
 
 handle_call(get_stats, _From, S) ->
     N = dets:info(raw, no_keys),
@@ -165,7 +165,7 @@ handle_info(check_headers, S) ->
                                         not dets:member(raw, {header, X})] -- PendingReqs,
             Prio = util:random_match(FreePeers, PrioReqs1),
             {PrioPeers, PrioReqs} = lists:unzip(Prio),
-            L1 = L -- [{prev, ?GENESIS_BLOCK_HASH}], % there are no blocks before genesis block 
+            L1 = L -- [{prev, ?GENESIS_BLOCK_HASH}], % there are no blocks before genesis block
             Normal = util:random_match(FreePeers -- PrioPeers, L1 -- PendingReqs -- PrioReqs),
             %io:format("request list:~n"),
             %[ io:format("   ~p ~p ~s~n", [Peer, Type, util:bin_to_hex(H)]) || {Peer, {Type, H}, _} <- S#state.req ],
@@ -184,7 +184,7 @@ handle_info(check_headers, S) ->
                              ({Peer, {cont, Hash}}) ->
                                     netmanager:send(Peer, protocol:getheaders_msg([Hash], <<0:32/unit:8>>))
                           end, Reqs),
-            {T1, S#state.req ++ [ begin {ok, T} = timer:send_after(10000 + random:uniform(10000), {timeout, P, R}), {P, R, T} end || {P, R} <- Reqs ]}
+            {T1, S#state.req ++ [ begin {ok, T} = timer:send_after(10000 + rand:uniform(10000), {timeout, P, R}), {P, R, T} end || {P, R} <- Reqs ]}
     end,
     %io:format("checking headers~n", []),
     timer:send_after(2000, check_headers),
@@ -218,7 +218,7 @@ update_dir(T, H, P) ->
         [_] ->
             Leaves1
     end,
-    Roots2 = case prev_block(T, P) of 
+    Roots2 = case prev_block(T, P) of
         undefined ->
             lists:usort([H | Roots1]);
         _ ->

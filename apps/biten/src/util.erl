@@ -105,7 +105,7 @@ hex_to_bin(S) ->
     binary:list_to_bin(hex_to_bin(S, [])).
 
 hex_to_bin([], R) ->
-    lists:reverse(R); 
+    lists:reverse(R);
 
 hex_to_bin([$\  | T], R) ->
     hex_to_bin(T, R);
@@ -145,7 +145,7 @@ take_random(1, L, Len, Acc) ->
     [random_element(L, Len) | Acc];
 
 take_random(N, [H | T], Len, Acc) ->
-    R = random:uniform(Len),
+    R = rand:uniform(Len),
     case N >= R of
         true ->
             take_random(N-1, T, Len-1, [H | Acc]);
@@ -157,7 +157,7 @@ random_element(List) ->
     random_element(List, length(List)).
 
 random_element(List, Len) ->
-    R = random:uniform(Len),
+    R = rand:uniform(Len),
     lists:nth(R, List).
 
 random_match(A, B) ->

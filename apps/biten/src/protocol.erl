@@ -1,6 +1,6 @@
 %%% --------------------------------------------------------------------------
 %%% @author Randy Willis <willis.randy@ymail.com
-%%% @doc Protocol related bits - message construction and parsing 
+%%% @doc Protocol related bits - message construction and parsing
 %%% @end
 %%% --------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ format_tx(TX) ->
         io_lib:format("  tx_out_count = ~b~n", [TX#tx.tx_out_count]),
         [ format_tx_out(TX_out) || TX_out <- TX#tx.tx_out ],
         io_lib:format("  lock time ~b~n", [TX#tx.lock_time]),
-       "" 
+       ""
     ].
 
 parse_tx_in(Rest, R, 0) ->
@@ -105,7 +105,7 @@ parse_tx_in(Rest, R, 0) ->
 parse_tx_in(<<TX_ref:32/bytes, Index:32/little, P/bytes>>, R, N) when N > 0 ->
     {L, R1} = parse_varint(P),
     <<Script:L/bytes, Seq:32/little, Rest/bytes>> = R1,
-    parse_tx_in(Rest, [{TX_ref, Index, Script, Seq}|R], N - 1). 
+    parse_tx_in(Rest, [{TX_ref, Index, Script, Seq}|R], N - 1).
 
 parse_tx_out(Rest, R, 0) ->
     {lists:reverse(R), Rest};
@@ -113,7 +113,7 @@ parse_tx_out(Rest, R, 0) ->
 parse_tx_out(<<Value:64/little, P/bytes>>, R, N) when N > 0 ->
     {L, R1} = parse_varint(P),
     <<PK_script:L/bytes, Rest/bytes>> = R1,
-    parse_tx_out(Rest, [{Value, PK_script}|R], N - 1). 
+    parse_tx_out(Rest, [{Value, PK_script}|R], N - 1).
 
 parse_tx(<<Ver:32/little, B/bytes>>) ->
     {TX_in_count, R1} = parse_varint(B),
@@ -121,17 +121,17 @@ parse_tx(<<Ver:32/little, B/bytes>>) ->
     {TX_out_count, R3} = parse_varint(R2),
     {TX_out, R4} = parse_tx_out(R3, [], TX_out_count),
     <<Lock_time:32/little>> = R4,
-    #tx{ver = Ver, tx_in_count = TX_in_count, tx_in = TX_in, 
+    #tx{ver = Ver, tx_in_count = TX_in_count, tx_in = TX_in,
     tx_out_count = TX_out_count, tx_out = TX_out, lock_time = Lock_time}.
 
 parse_headers(B) ->
     {N, R} = parse_varint(B),
     {ok, N, [H || <<H:80/bytes, _C:1/bytes>> <= R ]}.
 
-parse_block_header(<<Ver:32/little, PrevBlock:32/bytes, MerkleRoot:32/bytes, Time:32/little, Diff:4/bytes, Nonce:32/little>>) -> 
+parse_block_header(<<Ver:32/little, PrevBlock:32/bytes, MerkleRoot:32/bytes, Time:32/little, Diff:4/bytes, Nonce:32/little>>) ->
     {Ver, PrevBlock,  MerkleRoot, Time, Diff, Nonce}.
 
-prev_block_header(<<_:4/bytes, PrevBlock:32/bytes, _:44/bytes>>) -> 
+prev_block_header(<<_:4/bytes, PrevBlock:32/bytes, _:44/bytes>>) ->
     PrevBlock.
 
 parse_inv(B) ->
@@ -185,7 +185,7 @@ parse_message(<<Magic:4/binary, Command:12/binary, Len:32/little, CRC:4/binary,
 
 parse_message(Rest) ->
     {error, parse, Rest}.
- 
+
 getheaders_msg(L, StopHash) ->
     N = varint(length(L)),
     HL = << <<Hash/bytes>> || Hash <- L >>,
@@ -194,12 +194,12 @@ getheaders_msg(L, StopHash) ->
 getdata_msg(L) ->
     N = varint(length(L)),
     Body = <<<<Type:32/little, Hash/bytes>> || {Hash, Type} <- L>>,
-    make_message(?MAGIC, getdata, <<N/bytes, Body/bytes>>). 
-    
+    make_message(?MAGIC, getdata, <<N/bytes, Body/bytes>>).
+
 inv_msg(L) ->
     N = varint(length(L)),
     Body = <<<<Type:32/little, Hash/bytes>> || {Type, Hash} <- L>>,
-    make_message(?MAGIC, inv, <<N/bytes, Body/bytes>>). 
+    make_message(?MAGIC, inv, <<N/bytes, Body/bytes>>).
 
 getaddr_msg() ->
     make_message(?MAGIC, getaddr, <<>>).
@@ -216,14 +216,14 @@ pong_msg(Payload) ->
     make_message(?MAGIC, pong, Payload).
 
 addr_msg() ->
-    {MegaS, S, _MicroS} = now(),
+    {MegaS, S, _MicroS} = os:timestamp(),
     T = MegaS*1000000 + S,
-    make_message(?MAGIC, addr, 
-        <<1, 
-          T:32/little, 
+    make_message(?MAGIC, addr,
+        <<1,
+          T:32/little,
           1, 0:(7*8),             %service
           0:(10*8), 16#FF, 16#FF, %IPv6 addr (first part)
-          192, 210, 207, 147,      %IPv4 addr (or rest of IPv6 addr) 
+          192, 210, 207, 147,      %IPv4 addr (or rest of IPv6 addr)
           8333:16/big              %port
         >>).
 
@@ -243,7 +243,7 @@ version_msg() ->
                ],
     Payload = list_to_binary([
         msgstr_to_binary(PayloadStr1),
-        crypto:rand_bytes(8),
+        crypto:strong_rand_bytes(8),
         msgstr_to_binary(PayloadStr2)
         ]),
     make_message(?MAGIC, version, Payload).

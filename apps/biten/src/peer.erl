@@ -12,7 +12,7 @@
 %% Process state
 -record(peer, {state=new, host, port, socket, direction = outgoing, rest = <<>>, t_send}).
 
-connect(Addrs) -> 
+connect(Addrs) ->
     [ spawn_link(?MODULE, connect, [H, P]) || {H, P} <- Addrs ].
 
 start_link(outgoing, {Host, Port}) ->
@@ -41,7 +41,7 @@ loop(#peer{state = new, direction = incoming} = P) ->
     stat:increment(accepted),
     inet:setopts(P#peer.socket, [{active, once}]),
     loop(P#peer{state = loop});
-    
+
 loop(#peer{state = new} = P) ->
     stat:increment(connected),
    % io:format("Connected to ~s:~p, sending version~n", [util:ip_to_str(P#peer.host), P#peer.port]),
@@ -50,9 +50,9 @@ loop(#peer{state = new} = P) ->
 
 loop(#peer{state = version_sent} = P) ->
     case gen_tcp:recv(P#peer.socket, 0, 15*1000) of
-        {ok, B} -> 
+        {ok, B} ->
             R = B;
-        {error, _} -> 
+        {error, _} ->
             R = <<>>,
             loop(P#peer{state = stop})
     end,
@@ -63,7 +63,7 @@ loop(#peer{state = version_sent} = P) ->
     Rest = P#peer.rest,
     inet:setopts(P#peer.socket, [{active, once}]),
     netmanager:register(self()),
-    loop(P#peer{state = loop, rest = <<Rest/bytes, R/bytes>>, t_send = now()});
+    loop(P#peer{state = loop, rest = <<Rest/bytes, R/bytes>>, t_send = os:timestamp()});
 
 loop(#peer{state = stop}) ->
     %io:format("stopping peer process~n", []),
@@ -86,7 +86,7 @@ loop(#peer{state = loop} = P) ->
                             file:write_file(F, [Hdr, Payload]);
                         false -> ok
                     end,
-                    case Cmd of 
+                    case Cmd of
                         version when P#peer.direction =:= incoming ->
                             gen_tcp:send(P#peer.socket, protocol:version_msg()),
                             gen_tcp:send(P#peer.socket, protocol:verack_msg()),
@@ -108,10 +108,10 @@ loop(#peer{state = loop} = P) ->
                             gen_tcp:send(P#peer.socket, protocol:pong_msg(Payload));
                           tx ->
                             mempool:got_tx(Payload);
-                     getdata -> 
+                     getdata ->
                             {ok, _N, L} = protocol:parse_getdata(Payload),
                             mempool:got_getdata(L);
-                     headers -> 
+                     headers ->
                             {ok, _N, L} = protocol:parse_headers(Payload),
                             chain:got_headers(L);
                            _ ->
