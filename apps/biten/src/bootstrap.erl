@@ -67,10 +67,11 @@ code_change(_oldVersion, State, _Extra) ->
 
 %% @doc Get addrs for bootstrap from DNS.
 get_addrs_ipv4_dns() ->
-    L = ["bitseed.xf2.org",
-         "dnsseed.bluematt.me",
-         "seed.bitcoin.sipa.be",
-         "dnsseed.bitcoin.dashjr.org"
+    L = ["seed.bitcoinsv.io",
+         "btccash-seeder.bitcoinunlimited.info",
+         "seed.bitprim.org",
+         "seed.deadalnix.me",
+         "seeder.criptolayer.net"
         ],
     lists:flatten([nslookup_ipv4(A) || A <- L]).
 

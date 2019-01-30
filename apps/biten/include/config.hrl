@@ -2,7 +2,7 @@
 
 -define(MAX_PEERS, 10).
 
--define(MY_IP, {198,144,186,240}).
+-define(MY_IP, {127,0,0,1}).
 
 -define(LISTEN_PORT, 8333).
 
@@ -10,7 +10,7 @@
 
 -define(GENESIS_BLOCK_HASH, <<16#000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f:32/little-unit:8>>).
 
--define(CHECKPOINTS, [ 
+-define(CHECKPOINTS, [
         <<16#00000000fbc97cc6c599ce9c24dd4a2243e2bfd518eda56e1d5e47d29e29c3a7:32/little-unit:8>>,
         <<16#00000000ba36eb929dc90170a96ee3efb76cbebee0e0e5c4da9eb0b6e74d9124:32/little-unit:8>>,
         <<16#00000000b3cc5384f93014f783d86d6e209ad5ca7dc5a613c4f994fa984168c6:32/little-unit:8>>,

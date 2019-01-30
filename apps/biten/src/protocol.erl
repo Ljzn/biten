@@ -9,7 +9,7 @@
 
 -include("include/records.hrl").
 
--define(MAIN_MAGIC, <<16#F9BEB4D9:32/big>>).
+-define(MAIN_MAGIC, <<16#E3E1F3E8:32/big>>).
 -define(MAGIC, ?MAIN_MAGIC).
 -define(PROTOCOL_VERSION, <<16#62EA0000:32/big>>).
 
