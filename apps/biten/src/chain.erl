@@ -87,8 +87,8 @@ handle_cast({got_headers, P, L}, S) ->
     %NewBlocks = [ {b_crypto:hash(H), H} || H <- L, not dets:member(raw, {header, b_crypto:hash(H)}) ],
     {_OldBlocks, NewBlocks} = lists:partition(fun({HH, _}) -> dets:member(raw, {header, HH}) end,
         [ {b_crypto:hash(H), H} || H <- L]),
-    %io:format("headers from ~p: ~b new, ~b old~n", [P, length(NewBlocks), length(OldBlocks)]),
-    %[ io:format("  ~p ~s~n", [dets:member(raw, {header, b_crypto:hash(H)}), protocol:binary_to_hexstr(b_crypto:hash(H), "")]) || H <- L ],
+    % io:format("headers from ~p: ~b new, ~b old~n", [P, length(NewBlocks), length(OldBlocks)]),
+    % [ io:format("  ~p ~s~n", [dets:member(raw, {header, b_crypto:hash(H)}), protocol:binary_to_hexstr(b_crypto:hash(H), "")]) || H <- L ],
     [ dets:insert(raw, {{header, HH}, H}) || {HH, H} <- NewBlocks ],
     [ begin {_, Prev, _, _, _, _} = protocol:parse_block_header(H), update_dir(dir, HH, Prev ) end || {HH, H} <- NewBlocks ],
     {noreply, S#state{req = NewReqs}};

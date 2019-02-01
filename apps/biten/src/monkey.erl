@@ -1,10 +1,5 @@
-%%% --------------------------------------------------------------------------
-%%% @author Randy Willis <willis.randy@ymail.com
-%%% @doc Bootstrap process. Uses DNS for peer discovery.
-%%% @end
-%%% --------------------------------------------------------------------------
-
--module(bootstrap).
+%% do fancy things in this system
+-module(monkey).
 
 -behaviour(gen_server).
 
@@ -45,9 +40,10 @@ handle_call(_Request, _From, S) ->
     {reply, ok, S}.
 
 handle_cast(go, S) ->
-    IPs = get_addrs_ipv4_dns(),
-    peerdiscovery:add([{IP, 8333} || IP <- IPs]),
-    {stop, normal, S};
+    timer:sleep(timer:seconds(30)),
+    stat:print(),
+    gen_server:cast(?SERVER, go),
+    {noreply, S};
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
@@ -64,18 +60,3 @@ code_change(_oldVersion, State, _Extra) ->
 %%% ===========================================
 %%% Local functions
 %%% ===========================================
-
-%% @doc Get addrs for bootstrap from DNS.
-get_addrs_ipv4_dns() ->
-    L = ["seed.bitcoinsv.io",
-         "btccash-seeder.bitcoinunlimited.info",
-         "seed.bitprim.org",
-         "seed.deadalnix.me",
-         "seeder.criptolayer.net"
-        ],
-    lists:flatten([nslookup_ipv4(A) || A <- L]).
-
-nslookup_ipv4(Addr) ->
-    Type = a,
-    Class = in,
-    inet_res:lookup(Addr, Class, Type).

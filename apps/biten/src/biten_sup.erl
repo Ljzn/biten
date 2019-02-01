@@ -26,12 +26,13 @@ start_link() ->
 init([]) ->
     {ok, {{one_for_one, 5, 10}, [
              ?CHILD(peer_sup, supervisor),
-             ?CHILD(stat, worker), 
-             ?CHILD(netmanager, worker), 
+             ?CHILD(stat, worker),
+             ?CHILD(netmanager, worker),
              ?CHILD(peerdiscovery, worker),
              ?CHILD(mempool, worker),
              ?CHILD(accepter, worker),
              ?CHILD(chain, worker),
+             ?CHILD(monkey, worker),
              ?CHILD_T(bootstrap, worker)
          ]}}.
 

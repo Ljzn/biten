@@ -1,6 +1,6 @@
 -define(CONN_PER_SECOND, 1).
 
--define(MAX_PEERS, 10).
+-define(MAX_PEERS, 10000).
 
 -define(MY_IP, {127,0,0,1}).
 
