@@ -1,0 +1,16 @@
+<p id='screen'></p>
+
+<p>
+保存到硬盘上的内容有哪些？
+</p>
+
+
+
+<script>
+var screen = document.getElementById('screen');
+var ws = new WebSocket('ws://localhost:8080/');
+    
+ws.onmessage = function(event) {
+	screen.insertAdjacentHTML('afterend', '<p>' + event.data + '</p>');
+};
+</script>
