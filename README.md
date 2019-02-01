@@ -19,11 +19,4 @@ To run this program, you must have erlang and rebar installed.
 
 3. Running.
 
-[biten]$ erl -pa apps/*/ebin -boot start_sasl -s biten_app
-Erlang R14B04 (erts-5.8.5) [source] [smp:8:4] [rq:8] [async-threads:0] [kernel-poll:false]
-
-Eshell V5.8.5  (abort with ^G)
-
-<snip>
-
-3> stat:print().
+[biten]$ ./start_dev.sh
