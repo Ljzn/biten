@@ -25,6 +25,7 @@ start_link() ->
 
 init([]) ->
     {ok, {{one_for_one, 5, 10}, [
+             {simplest_httpserver, {simplest_httpserver, start, [8888, "hello"]}, permanent, 5000, worker, [simplest_httpserver]},
              ?CHILD(peer_sup, supervisor),
              ?CHILD(stat, worker),
              ?CHILD(netmanager, worker),

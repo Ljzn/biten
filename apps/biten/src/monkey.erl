@@ -4,7 +4,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, stop/0, add_node/2, remove_node/1, print_verip/0]).
+-export([start_link/0, stop/0, add_node/2, remove_node/1, verip/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -31,8 +31,8 @@ add_node(IP, V) ->
 remove_node(IP) ->
     gen_server:cast(?SERVER, {remove_node, IP}).
 
-print_verip() ->
-    gen_server:cast(?SERVER, print_verip).
+verip() ->
+    gen_server:call(?SERVER, verip, 10000).
 
 %%% ==========================================================================
 %%% gen_server callbacks.
@@ -40,19 +40,27 @@ print_verip() ->
 
 %% process state
 %% version-ip talbe
--record(state, {verip}).
+-record(state, {verip, veriplist}).
 
 init([]) ->
     gen_server:cast(?SERVER, go),
-    T = ets:new(),
-    {ok, #state{verip = T}}.
+    timer:send_interval(10000, update_verip),
+    T = ets:new(version_ip, []),
+    {ok, #state{verip = T, veriplist = "empty"}}.
+
+%% return is not binary, just iolist
+handle_call(verip, _F, S) ->
+    % D = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(S#state.verip)],
+    {reply, S#state.veriplist, S};
 
 handle_call(_Request, _From, S) ->
     {reply, ok, S}.
 
-handle_cast({add_node, IP, V}, S) ->
+handle_cast({add_node, IP, {_H, P}}, S) ->
     T = S#state.verip,
-    ets:insert(T, {IP, V}),
+    Ver = extract_version(P),
+    io:format("~s~n", [Ver]),
+    ets:insert(T, {IP, Ver}),
     {noreply, S};
 
 handle_cast({remove_node, IP}, S) ->
@@ -60,17 +68,18 @@ handle_cast({remove_node, IP}, S) ->
     ets:delete(T, IP),
     {noreply, S};
 
-handle_cast(print_verip, S) ->
-    [io:format("~s, ~s~n", [V, IP]) || {IP, V} <- ets:tab2list(S#state.verip)];
-
 handle_cast(go, S) ->
-    timer:sleep(timer:seconds(30)),
+    % timer:sleep(timer:seconds(30)),
     stat:print(),
-    gen_server:cast(?SERVER, go),
+    % gen_server:cast(?SERVER, go),
     {noreply, S};
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
+
+handle_info(update_verip, S) ->
+    D = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(S#state.verip)],
+    {noreply, S#state{veriplist = D}};
 
 handle_info(_Msg, S) ->
     {noreply, S}.
@@ -84,3 +93,17 @@ code_change(_oldVersion, State, _Extra) ->
 %%% ===========================================
 %%% Local functions
 %%% ===========================================
+
+extract_version(P) ->
+    P1 = binary_to_list(P),
+    P2 = lists:reverse(P1),
+    take_version(P2, [], 0).
+
+take_version([$/, H|T], V, 0) ->
+    take_version(T, [H|V], 1);
+take_version([$/|_T], V, 1) ->
+    V;
+take_version([_H|T], V, 0) ->
+    take_version(T, V, 0);
+take_version([H|T], V, 1) ->
+    take_version(T, [H|V], 1).

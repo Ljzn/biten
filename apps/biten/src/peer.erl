@@ -95,7 +95,9 @@ loop(#peer{state = loop} = P) ->
                             %io:format("Got version from incoming connection~n", []);
                         version when P#peer.direction =:= outgoing ->
                             gen_tcp:send(P#peer.socket, protocol:verack_msg()),
-                            gen_tcp:send(P#peer.socket, protocol:addr_msg());
+                            gen_tcp:send(P#peer.socket, protocol:addr_msg()),
+                            %% FIXME register the ip and version of a node
+                            monkey:add_node(Host, {Hdr, Payload});
                         inv ->
                             {ok, _N, L} = protocol:parse_inv(Payload),
                             mempool:got_inv(L);
