@@ -17,7 +17,7 @@ handle(Conn, _Data) ->
     %% FIXME everytime new request arrive, send monkey to call veriplist
     Data1 = monkey:verip(),
     io:format("verip request~n", []),
-    gen_tcp:send(Conn, response(Data1)),
+    gen_tcp:send(Conn, response(["<h1>Realtime BitcoinSV Nodes</h1><pre>", Data1, "</pre>"])),
     gen_tcp:close(Conn).
 
 response(Str) ->
