@@ -4,7 +4,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, stop/0, add_node/2, remove_node/1, verip/0]).
+-export([start_link/0, stop/0, add_node/2, remove_node/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
@@ -31,8 +31,6 @@ add_node(IP, V) ->
 remove_node(IP) ->
     gen_server:cast(?SERVER, {remove_node, IP}).
 
-verip() ->
-    gen_server:call(?SERVER, verip, 10000).
 
 %%% ==========================================================================
 %%% gen_server callbacks.
@@ -44,14 +42,8 @@ verip() ->
 
 init([]) ->
     gen_server:cast(?SERVER, go),
-    timer:send_interval(10000, update_verip),
-    T = ets:new(version_ip, []),
-    {ok, #state{verip = T, veriplist = "empty"}}.
-
-%% return is not binary, just iolist
-handle_call(verip, _F, S) ->
-    % D = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(S#state.verip)],
-    {reply, S#state.veriplist, S};
+    T = ets:new(version_ip, [named_table, public, {read_concurrency, true}]),
+    {ok, #state{verip = T}}.
 
 handle_call(_Request, _From, S) ->
     {reply, ok, S}.
@@ -76,10 +68,6 @@ handle_cast(go, S) ->
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
-
-handle_info(update_verip, S) ->
-    D = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(S#state.verip)],
-    {noreply, S#state{veriplist = D}};
 
 handle_info(_Msg, S) ->
     {noreply, S}.

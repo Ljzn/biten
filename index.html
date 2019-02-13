@@ -11,6 +11,7 @@ const onscreen = (data) => {
 }
 
 const zxhost = 'http://150.109.49.109:8888'
+const localhost = 'http://localhost:8888'
 
 // websocket
 // var ws = new WebSocket('ws://localhost:8080/');
@@ -19,7 +20,7 @@ const zxhost = 'http://150.109.49.109:8888'
 // };
 
 // fetch
-fetch(zxhost)
+fetch(localhost)
   .then((res) => res.text())
 	.then((html) => {
 		onscreen(html)
