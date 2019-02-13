@@ -43,7 +43,7 @@ stop() ->
 -record(state, {none}).
 
 init([]) ->
-    {ok, LSock} = gen_tcp:listen(8333, [binary, {packet, 0}, 
+    {ok, LSock} = gen_tcp:listen(8333, [binary, {packet, 0},
                                             {active, false}, {reuseaddr, true}]),
     {ok, _Ref} = async_accept(LSock),
     {ok, #state{}}.
@@ -58,6 +58,7 @@ handle_call(_Request, _From, S) ->
 handle_cast(stop, State) ->
     {stop, normal, State}.
 
+%% TODO record incoming peers
 handle_info({inet_async, LSock, _, {ok, Sock}}, S) ->
     supervisor:start_child(peer_sup, [incoming, Sock]),
     {ok, _Ref} = async_accept(LSock),

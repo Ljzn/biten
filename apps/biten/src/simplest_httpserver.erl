@@ -1,6 +1,8 @@
 -module(simplest_httpserver).
 -export([start/2]).
 
+%% TODO use a better http server
+
 %% start a httpserver, show the iolist Data
 start(Port, Data) ->
     Pid = spawn(fun () -> {ok, Sock} = gen_tcp:listen(Port, [{active, false}]),
@@ -18,7 +20,7 @@ handle(Conn, _Data) ->
     Data1 = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(version_ip)],
     io:format("verip request~n", []),
     gen_tcp:send(Conn, response(Data1)),
-    gen_tcp:close(Conn).
+    gen_tcp:shutdown(Conn, write).
 
 response(Str) ->
     B = iolist_to_binary(Str),
