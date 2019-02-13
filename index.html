@@ -1,16 +1,25 @@
+<h1>BitcoinSV Nodes</h1>
 <p id='screen'></p>
-
-<p>
-保存到硬盘上的内容有哪些？
-</p>
 
 
 
 <script>
-var screen = document.getElementById('screen');
-var ws = new WebSocket('ws://localhost:8080/');
-    
-ws.onmessage = function(event) {
-	screen.insertAdjacentHTML('afterend', '<p>' + event.data + '</p>');
-};
+var screen = document.getElementById('screen')
+
+const onscreen = (data) => {
+	screen.insertAdjacentHTML('afterend', data)
+}
+
+// websocket
+// var ws = new WebSocket('ws://localhost:8080/');
+// ws.onmessage = function(event) {
+// 	screen.insertAdjacentHTML('afterend', '<p>' + event.data + '</p>');
+// };
+
+// fetch
+fetch('http://localhost:8888')
+  .then((res) => res.text())
+	.then((html) => {
+		onscreen(html)
+	})
 </script>
