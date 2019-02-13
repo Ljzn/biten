@@ -42,7 +42,7 @@ remove_node(IP) ->
 
 init([]) ->
     gen_server:cast(?SERVER, go),
-    T = ets:new(version_ip, [named_table, public, {read_concurrency, true}]),
+    T = ets:new(version_ip, [named_table, public, {read_concurrency, true}, {write_concurrency, true}]),
     {ok, #state{verip = T}}.
 
 handle_call(_Request, _From, S) ->

@@ -65,8 +65,9 @@ loop(#peer{state = version_sent} = P) ->
     netmanager:register(self()),
     loop(P#peer{state = loop, rest = <<Rest/bytes, R/bytes>>, t_send = os:timestamp()});
 
-loop(#peer{state = stop}) ->
+loop(#peer{state = stop, host = Host}) ->
     %io:format("stopping peer process~n", []),
+    monkey:remove_node(Host),
     {normal, ok};
 
 loop(#peer{state = loop} = P) ->
