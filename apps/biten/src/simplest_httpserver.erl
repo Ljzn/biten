@@ -19,7 +19,7 @@ handle(Conn, _Data) ->
     %% FIXME everytime new request arrive, send monkey to call veriplist
     Data1 = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(version_ip)],
     io:format("verip request~n", []),
-    gen_tcp:send(Conn, response(Data1)),
+    gen_tcp:send(Conn, response(Data1)).
     %% Not active close the socket
     % gen_tcp:shutdown(Conn, write).
 
