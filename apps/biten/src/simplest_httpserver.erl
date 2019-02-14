@@ -20,7 +20,8 @@ handle(Conn, _Data) ->
     Data1 = [io_lib:format("~s, ~s~n", [V, inet:ntoa(IP)]) || {IP, V} <- ets:tab2list(version_ip)],
     io:format("verip request~n", []),
     gen_tcp:send(Conn, response(Data1)),
-    gen_tcp:shutdown(Conn, write).
+    %% Not active close the socket
+    % gen_tcp:shutdown(Conn, write).
 
 response(Str) ->
     B = iolist_to_binary(Str),
